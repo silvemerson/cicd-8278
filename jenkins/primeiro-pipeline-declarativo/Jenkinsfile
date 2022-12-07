@@ -1,0 +1,28 @@
+pipeline {
+    agent any
+    
+    stages {
+      stage('Variaveis de ambiente'){
+        steps{
+          sh 'printenv'
+        }        
+    }
+    
+    }
+    
+    post{
+        
+        always {
+            
+            echo "Pipeline finalizado"
+        }
+        
+        success {
+            echo "Pipeline finalizado com sucesso"
+        }
+        
+        failure {
+            echo "Pipeline finalizado com falha"
+        }
+    }
+}

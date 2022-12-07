@@ -1,0 +1,65 @@
+pipeline {
+    
+    agent any
+    
+    stages {
+        stage ('Docker pull nginx'){
+            
+            steps{
+                script{
+                  
+                    image = docker.image("nginx:latest")
+                    image.pull()
+                }
+            }
+        }
+        stage ('Docker list image'){
+            
+            steps{
+                
+                sh 'docker images'
+            
+            }            
+        }
+        stage ('Docker run'){
+            
+            steps{
+                
+                sh 'docker run -dti --name nginx -p 80:80 nginx:latest'
+            
+            }             
+            
+        }
+        stage ('Docker ps'){
+            
+            steps{
+                
+                sh 'docker ps'
+            
+            }             
+            
+        }
+
+        stage ('Docker teste'){
+            
+            steps{
+                
+                sh 'curl localhost'
+            
+            }             
+            
+        }
+
+        stage ('Docker rm'){
+            
+            steps{
+                
+                sh 'docker rm -f nginx'
+            
+            }             
+            
+        }
+
+    }
+    
+}

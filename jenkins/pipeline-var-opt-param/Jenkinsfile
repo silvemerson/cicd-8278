@@ -15,7 +15,7 @@ pipeline{
     }
 
     parameters {
-        choice(name:'ENVIRONMENT', choices:['DEV','HOMOLOG','PROD']), description: 'Um ambiente para executar a pipelie'
+        choice(name:'ENVIRONMENT', choices:['DEV','HOMOLOG','PROD'], description: 'Um ambiente para executar a pipelie')
         string(name: 'ARQUIVO', defaultValue: 'arquivo.txt', description: 'Nome do arquivo a se criar.')
         text(name: 'CONTEUDO', defaultValue: '', description: 'Entre com um conteúdo para o arquivo')
         booleanParam(name: 'CRIAR', defaultValue: true, description: 'Criar ou não o arquivo?')

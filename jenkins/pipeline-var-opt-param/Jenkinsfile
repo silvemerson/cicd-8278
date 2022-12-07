@@ -16,7 +16,8 @@ pipeline{
     parameters {
         choice(name:'ENVIRONMENT', choices:['DEV','HOMOLOG','PROD']), description: 'Um ambiente para executar a pipelie'
         string(name: 'ARQUIVO', defaultValue: 'arquivo.txt', description: 'Nome do arquivo a se criar.')
-
+        text(name: 'CONTEUDO', defaultValue: '', description: 'Entre com um conteúdo para o arquivo')
+        booleanParam(name: 'CRIAR', defaultValue: true, description: 'Criar ou não o arquivo?')
     }
     
     stages {
@@ -33,10 +34,40 @@ pipeline{
                 echo "$BUILD_DISPLAY_NAME"
             }
         }
+
+        stage ('Listar variaveis de ambiente'){
+            steps{
+                echo "DIR_REPO = ${DIR_REPO}"
+                echo "LOCAL_PATH = ${LOCAL_PATH}"
+            }
+        }
+
+        stage ('Parametros do Ambiente'){
+            steps{
+                echo "Arquivo a se criar: ${params.ARQUIVO}"
+               echo "Conteúdo do arquivo: ${params.CONTEUDO}"
+            }
+        }        
+
         stage ('Git checkout gitTest'){
             steps{
                 git 'http://192.168.88.20:3000/root/gitTest.git'
             }
+        }
+    }
+    post{
+        
+        always {
+            
+            echo "Pipeline finalizado"
+        }
+        
+        success {
+            echo "Pipeline finalizado com sucesso"
+        }
+        
+        failure {
+            echo "Pipeline finalizado com falha"
         }
     }
 }

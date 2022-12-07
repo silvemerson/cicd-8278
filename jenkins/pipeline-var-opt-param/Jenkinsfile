@@ -1,0 +1,42 @@
+pipeline{
+    
+    agent any
+    
+    options {
+        
+        timeout(time: 5, unit: 'SECONDS')
+        timestamps()
+    }
+
+    environment {
+        DIR_REPO="repo"
+        LOCAL_PATH=pwd()
+    }
+
+    parameters {
+        choice(name:'ENVIRONMENT', choices:['DEV','HOMOLOG','PROD']), description: 'Um ambiente para executar a pipelie'
+        string(name: 'ARQUIVO', defaultValue: 'arquivo.txt', description: 'Nome do arquivo a se criar.')
+
+    }
+    
+    stages {
+        
+        stage ('OS Release'){
+            steps{
+                sh 'cat /etc/*release'
+            }
+        }
+        stage ('Listar variaveis Jenkins'){
+            steps{
+                echo "$WORKSPACE"
+                echo "$BUILD_ID"
+                echo "$BUILD_DISPLAY_NAME"
+            }
+        }
+        stage ('Git checkout gitTest'){
+            steps{
+                git 'http://192.168.88.20:3000/root/gitTest.git'
+            }
+        }
+    }
+}

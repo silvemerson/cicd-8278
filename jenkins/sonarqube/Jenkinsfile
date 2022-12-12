@@ -1,0 +1,60 @@
+pipeline{
+    agent any
+
+    environment {
+            IMAGE_NAME="course_catalog"
+            IMAGE_TAG="0.${BUILD_ID}"
+            CONTAINER_IMAGE="${IMAGE_NAME}:${IMAGE_TAG}"
+       } 
+
+    stages{
+
+        stage('Build'){
+            steps{
+              script{
+                    image = docker.build("$IMAGE_NAME")
+              }
+            }
+
+       }
+        stage('Executando Unit Test'){
+            steps{
+              script{
+                      image.inside("-v ${WORKSPACE}:/courseCatalog"){
+                          sh "nosetests --with-xunit --with-coverage --cover-package=project test_users.py"
+                    }
+              }
+            }
+        }
+
+        stage('SonarQube Analysis'){
+            steps{
+               script{
+
+                def scannerPath = tool 'SonarScanner'
+                withSonarQubeEnv('SonarQube'){
+                    sh "${scannerPath}/bin/sonar-scanner -Dsonar.projectKey=courseCatalog -Dsonar.sources=."
+                }
+
+               }
+            }
+        }
+
+        stage('SonarQube Analysis Result'){
+            steps{
+               script{
+                timeout(time: 30, unit: 'SECONDS'){
+                    waitForQualityGate abortPipeline: true
+                }
+               }
+            }
+        }
+
+    }
+    post{
+      success {
+        junit 'nosetests.xml'
+      }
+    }
+
+}

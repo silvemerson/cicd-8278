@@ -2,33 +2,57 @@ pipeline {
   agent any
   
   environment {
-        KUBECONFIG_JENKINS  = credentials('kubeconfig-k3s')
+        KUBECONFIG_JENKINS  = credentials('kubeconfig')
+        //IMAGE_NAME="course-catalog"
+        //IMAGE_TAG="0.0.${BUILD_ID}"
+        //NEXUS_SERVER="192.168.56.20:8082"
+        //HTTP_PROTO="http://"
+        //JENKINS_CREDEN="710f295d-1bfb-43f4-a83c-2bbfe1ea61f1"      
         //IMAGE_NAME="registry:5000/supermario"
         //IMAGE_TAG="0.0.${BUILD_ID}"
-  }  
-  stages{
+  } 
 
-    stage('Cloning Git') {
-      steps {
-        git([url: 'https://github.com/silvemerson/mariohtml5.git', branch: 'master'])
-      }
-    }    
+  parameters {
+      choice(name:'ENVIRONMENT', choices:['HOMOLOG','PROD'], description: 'Um ambiente para executar a pipelie')
+  }
+
+  stages {
 
     stage('Inicializando Kubeconfig'){
       steps{
-         //sh 'mkdir ~/.kube/'
          sh 'cat $KUBECONFIG_JENKINS > ~/.kube/config' 
       }
     }
+      stage('Environment') {
+        steps {
+          echo "Esse é um ambiente de: ${params.ENVIRONMENT}"
+        }
+      }    
 
-    stage('Deploy'){
-      steps{
-         sh 'kubectl apply -f manifest -n homolog'
-         //Ambiente foi criado, agora com o comando abaixo, só alterar o deploy
-         //para a imagem que está no registry
-         //sh 'kubectl set image deployment/supermario-deployment *=$IMAGE_NAME:$IMAGE_TAG'
+    stage('Teste Homolog'){
+
+      when {
+          expression { 
+             return params.ENVIRONMENT == 'HOMOLOG'
+          }
       }
-    }        
+
+      steps{
+         sh "kubectl create deploy web-app --image=nginx -n homolog"
+      }
+    }
+
+    stage('Teste Prod'){
+
+      when {
+          expression { 
+             return params.ENVIRONMENT == 'PROD'
+          }
+      }
+      steps{
+         sh "kubectl create deploy web-app --image=nginx -n prod"
+      }
+    }
 
   }
 }

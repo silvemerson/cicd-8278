@@ -1,0 +1,23 @@
+pipeline {
+
+    agent any
+
+    environment {
+
+        IMAGE_NAME="course_catalog"
+    }
+
+    stages {
+
+        stage('Build'){
+            steps{
+              script{
+                image = docker.build("$IMAGE_NAME")
+              }
+            }
+
+        }
+
+    }
+
+}

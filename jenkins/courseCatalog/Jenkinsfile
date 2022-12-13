@@ -76,7 +76,7 @@ pipeline{
             }
 
             steps{
-                sh 'kubectl -n homolog apply -f .  manifest'
+                sh 'kubectl -n homolog apply -f manifest'
             }
         }         
 
@@ -87,7 +87,7 @@ pipeline{
                 }
             }
             steps{
-                sh 'kubectl -n prod apply -f .  manifest'
+                sh 'kubectl -n prod apply -f manifest'
             }
         }                
 

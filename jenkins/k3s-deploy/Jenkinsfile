@@ -30,7 +30,9 @@ pipeline {
 
         stage('Deploy Homolog'){
             when{
+               expression {
                 return params.ENVIRONMENT == HOMOLOG
+               }
             }
             steps{
                 sh 'kubectl -n homolog create deploy supermario --image=pengbai/docker-supermario'
@@ -39,7 +41,9 @@ pipeline {
 
         stage('Deploy PROD'){
             when{
+              expression{
                 return params.ENVIRONMENT == PROD
+              }
             }
             steps{
                 sh 'kubectl -n prod create deploy supermario --image=pengbai/docker-supermario'
@@ -47,5 +51,4 @@ pipeline {
         } 
 
     }
-
 }

@@ -1,0 +1,74 @@
+pipeline{
+    agent any
+
+    environment {
+            IMAGE_NAME="course_catalog"
+            IMAGE_TAG="0.${BUILD_ID}"
+            NEXUS_REPOSITORY="192.168.88.20:8082"
+            HTTP_PROTOCOL="http://"
+            DOCKER_REGISTRY="${HTTP_PROTOCOL}${NEXUS_REPOSITORY}"
+            JENKINS_CREDEN="2fcd4f18-066f-40a5-bf2d-581aabfa634b"
+
+       } 
+
+    stages{
+
+        stage('Build'){
+            steps{
+              script{
+                    image = docker.build("${IMAGE_NAME}:${IMAGE_TAG}")
+              }
+            }
+
+       }
+        stage('Executando Unit Test'){
+            steps{
+              script{
+                      image.inside("-v ${WORKSPACE}:/courseCatalog"){
+                          sh "nosetests --with-xunit --with-coverage --cover-package=project test_users.py"
+                    }
+              }
+            }
+        }
+
+        stage('SonarQube Analysis'){
+            steps{
+               script{
+
+                def scannerPath = tool 'SonarScanner'
+                withSonarQubeEnv('SonarQube'){
+                    sh "${scannerPath}/bin/sonar-scanner -Dsonar.projectKey=courseCatalog -Dsonar.sources=."
+                }
+
+               }
+            }
+        }
+
+        stage('SonarQube Analysis Result'){
+            steps{
+               script{
+                timeout(time: 30, unit: 'SECONDS'){
+                    waitForQualityGate abortPipeline: true
+                }
+               }
+            }
+        }
+
+        stage('Docker Push Nexus'){
+            steps{
+              script{
+                    docker.withRegistry("${DOCKER_REGISTRY}","${JENKINS_CREDEN}")
+                    image.push()
+              }
+            }
+
+       }        
+
+    }
+    post{
+      success {
+        junit 'nosetests.xml'
+      }
+    }
+
+}

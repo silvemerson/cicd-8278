@@ -57,11 +57,12 @@ pipeline{
         stage('Docker Push Nexus'){
             steps{
               script{
-                    docker.withRegistry("${DOCKER_REGISTRY}","${JENKINS_CREDEN}")
-                    image.push()
+                docker.withRegistry("${DOCKER_REGISTRY}","${JENKINS_CREDEN}"){
+                 image.push()
+                }
+                 
               }
             }
-
        }        
 
     }

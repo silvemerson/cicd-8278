@@ -5,10 +5,20 @@ pipeline {
         KUBECONFIG_JEKINS = credentials('kubeconfig')
     }
 
+    parameters {
+        choice(name: 'ENVIRONMENT', choices: ['HOMOLOG', 'PROD'], description: 'Um ambiente para executar a pipline' )
+    }
+
     stages{
         stage('Inicializando kubeconfig'){
             steps{
                 sh 'cat $KUBECONFIG_JEKINS > ~/.kube/config'
+            }
+        }
+
+        stage('ENVIRONMENT'){
+            steps{
+                echo "Esse é um ambiente de: ${params.ENVIRONMENT}"
             }
         }
 
@@ -18,12 +28,23 @@ pipeline {
             }
         }
 
-        stage('Primeiro Deploy'){
+        stage('Deploy Homolog'){
+            when{
+                return params.ENVIRONMENT == HOMOLOG
+            }
             steps{
-                sh 'kubectl create deploy supermario --image=pengbai/docker-supermario'
+                sh 'kubectl -n homolog create deploy supermario --image=pengbai/docker-supermario'
             }
         }         
 
+        stage('Deploy PROD'){
+            when{
+                return params.ENVIRONMENT == PROD
+            }
+            steps{
+                sh 'kubectl -n prod create deploy supermario --image=pengbai/docker-supermario'
+            }
+        } 
 
     }
 

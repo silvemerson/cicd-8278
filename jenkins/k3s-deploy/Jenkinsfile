@@ -6,7 +6,7 @@ pipeline {
     }
 
     parameters {
-        choice(name: 'ENVIRONMENT', choices: ['HOMOLOG', 'PROD'], description: 'Um ambiente para executar a pipline' )
+        choice(name: 'ENVIRONMENT', choices: ['HOMOLOG', 'PROD'], description: 'Um ambiente para executar a pipline')
     }
 
     stages{
@@ -29,21 +29,22 @@ pipeline {
         }
 
         stage('Deploy Homolog'){
-            when{
-               expression {
-                return params.ENVIRONMENT == HOMOLOG
-               }
+            when {
+                expression { 
+                    return params.ENVIRONMENT == 'HOMOLOG'
+                }
             }
+
             steps{
                 sh 'kubectl -n homolog create deploy supermario --image=pengbai/docker-supermario'
             }
         }         
 
         stage('Deploy PROD'){
-            when{
-              expression{
-                return params.ENVIRONMENT == PROD
-              }
+            when {
+                expression { 
+                    return params.ENVIRONMENT == 'PROD'
+                }
             }
             steps{
                 sh 'kubectl -n prod create deploy supermario --image=pengbai/docker-supermario'

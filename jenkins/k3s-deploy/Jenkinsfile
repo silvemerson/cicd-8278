@@ -1,0 +1,23 @@
+pipeline {
+    agent any
+
+    environment{
+        KUBECONFIG_JEKINS = credentials('kubeconfig')
+    }
+
+    stages{
+        stage('Inicializando kubeconfig'){
+            steps{
+                sh 'cat $KUBECONFIG_JEKINS > ~/.kube/config'
+            }
+        }
+
+        stage('Listando Nodes'){
+            steps{
+                sh 'kubectl get nodes'
+            }
+        }        
+
+    }
+
+}

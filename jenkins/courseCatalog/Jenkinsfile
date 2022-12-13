@@ -68,6 +68,18 @@ pipeline{
               }
             }
        }
+
+        stage('Apply latest tag'){
+            steps{
+              script{
+                docker.withRegistry("${DOCKER_REGISTRY}","${JENKINS_CREDEN}"){
+                 image.push("latest")
+                }
+                 
+              }
+            }
+       }
+
         stage('Deploy Homolog'){
             when {
                 expression { 
